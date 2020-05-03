@@ -47,18 +47,16 @@ filter {
 	 "message", "(%{MIKROTIK_TOPIC:topic1}(,%{MIKROTIK_TOPIC:topic2}(,%{MIKROTIK_TOPIC:topic3}?)?)?) %{USERNAME:username} %{MIKROTIK_VPN_STATUS:status}, %{INT:seconds_connected} %{INT:rx_bytes} %{INT:tx_bytes} %{INT:rx_packets} %{INT:tx_packets}",
 	 "message", "(%{MIKROTIK_TOPIC:topic1}(,%{MIKROTIK_TOPIC:topic2}(,%{MIKROTIK_TOPIC:topic3}?)?)?) <%{GREEDYDATA:id}>: %{MIKROTIK_VPN_STATUS:status}... - peer %{MIKROTIK_VPN_STATUS:status:actual_status}"
    ]  
-  }  
-  if "_grokparsefailure_mikrotik_log" not in [tags] {  
-   mutate {  
-    remove_field => ["message"]  
-   }  
-  }  
+  }    
  }  
 }  
 
 output {
   elasticsearch {
     hosts => ["http://localhost:9200"]
-    index => "mikrotik_syslog"
+    ilm_enabled => true
+    ilm_rollover_alias => "mikrotik-alias"
+    ilm_policy => "Mikrotik_policy"
+    template_name => "mikrotik-alias"
   }
 }
